@@ -12,10 +12,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -53,23 +50,40 @@ public class WXSportController {
 
 
     @ApiOperation(value = "刷步调用")
-    @PostMapping("/refushStep")
-    public String refushStep(@RequestBody RefushStepVO vo) throws IOException {
+    @RequestMapping(value = "/refushStep", method = {RequestMethod.GET, RequestMethod.POST})
+    public String refushStep(@RequestBody(required = false) RefushStepVO vo,
+                             @RequestParam(required = false) String usr,
+                             @RequestParam(required = false) String psw,
+                             @RequestParam(required = false) String bs) throws IOException {
         Map<String,Object> respon = new HashMap<>();
-        if (StrUtil.isEmpty(vo.getUsr())){
+        if (StrUtil.isEmpty(usr) && StrUtil.isEmpty(vo.getUsr())){
             respon.put("result",412);
             respon.put("message","账号不为空");
             return JSONUtil.toJsonStr(JSONUtil.parseObj(respon));
         }
-        if (StrUtil.isEmpty(vo.getPsw())){
+
+        if (StrUtil.isEmpty(psw) && StrUtil.isEmpty(vo.getPsw())){
             respon.put("result",413);
             respon.put("message","密码不为空");
             return JSONUtil.toJsonStr(JSONUtil.parseObj(respon));
         }
-        if (StrUtil.isEmpty(vo.getBs())){
+
+        if (StrUtil.isEmpty(bs) && StrUtil.isEmpty(vo.getBs())){
             respon.put("result",414);
             respon.put("message","目标不为空");
             return JSONUtil.toJsonStr(JSONUtil.parseObj(respon));
+        }
+        if (vo == null){
+            vo = new RefushStepVO();
+        }
+        if (StrUtil.isNotEmpty(usr)){
+            vo.setUsr(usr);
+        }
+        if (StrUtil.isNotEmpty(psw)){
+            vo.setPsw(psw);
+        }
+        if (StrUtil.isNotEmpty(bs)){
+            vo.setBs(bs);
         }
         String result = getString2(vo);
         logger.info(UnicodeUtil.toString(result));
